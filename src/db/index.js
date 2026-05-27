@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import { DB_NAME } from "../constants.js";
 
+
+//DB conection is async await and we need try catch or .then().catch
+//we will have many db connections throughout the project so to write the same async and await wrapper again and again is not good so we make a utility code for this warapper
 const connectDB = async () => {
     try {
         const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`);

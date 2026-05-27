@@ -7,7 +7,18 @@ dotenv.config({
     path: './env'
 })
 
+//connectDB is a async function so on completion we will get a promise so apply .then and .catch on the function
 connectDB()
+.then(()=>{
+    app.listen(process.env.PORT || 8000,()=>{
+        console.log(`Server is running at port:${process.env.PORT}`);
+        
+    })
+})
+.catch((err)=>{
+    console.log("MONOGODB Connection failed!!!",err);
+    
+})
 
 
 
