@@ -1,8 +1,12 @@
-//this async handler makes a method and returns it
+//async error handler wrapper for Express.js.
+//Automatically catch errors from async functions without writing try-catch again and again.
+
 const asyncHandler = (requestHandler) => {
     //asynchandler with promises
-    (req, res, next) => {
+    return (req, res, next) => {
+        //Promise because async functions always return Promise
         Promise.resolve(requestHandler(req, res, next))
+        //sends error to Express error middleware.
         .catch((err) => next(err))
     }
 
@@ -10,7 +14,7 @@ const asyncHandler = (requestHandler) => {
 
 export { asyncHandler }
 
-// //async handler is higher order function(which takes fn as parameter)
+// //async handler is higher order function(A function that receives another function.)Ex:asyncHandler(loginUser)
 // // const asyncHandler=()=>{}
 // // const asyncHandler=(func)=>{()=>{}}
 // // const asyncHandler=(func)=>async()=>{}
