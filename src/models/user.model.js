@@ -55,6 +55,7 @@ const userSchema = new Schema(
 //these call back functions take time so they are async
 //here there is a problem whenever the data is saved this pre hook will run so many number of times and every time the password is changes
 //so to make this code run only when password field is changes we must add if condition
+//pre hook(middleware(save))
 userSchema.pre("save", async function(next){
   if(this.isModified("password")){
   //hash takes two values 1.what is need to be hashed 2.how many rounds
