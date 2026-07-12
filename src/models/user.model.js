@@ -59,7 +59,7 @@ const userSchema = new Schema(
 userSchema.pre("save", async function(next){
   if(this.isModified("password")){
   //hash takes two values 1.what is need to be hashed 2.how many rounds
-  this.password=bcrypt.hash(this.password,10)
+  this.password= await bcrypt.hash(this.password,10)
   next()
   }
 })
@@ -99,4 +99,5 @@ userSchema.methods.generateRefreshToken = function(){
   }
 )
 }
+//this user can directly contact with the db --becoz mongoose made this
 export const User = mongoose.model("User", userSchema)

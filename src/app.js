@@ -23,4 +23,16 @@ app.use(express.static("public"))
 app.use(cookieParser())
 
 
+//routes
+//routes are imported like these only for segregation purpose
+import userRouter from "./routes/user.routes.js"
+
+
+//routes declaration
+//app.get ---> when we do not export router,when we write the controllers and routes in same file then we can do app.get
+//if we are using export routing mechanism then we have to use middleware use
+//it takes 2 arguments (route,which route to activate)
+app.use("/api/v1/users",userRouter) //http://localhost:8000/users/v1/api/register
+
+
 export {app}
