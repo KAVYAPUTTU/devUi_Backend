@@ -56,13 +56,14 @@ const userSchema = new Schema(
 //here there is a problem whenever the data is saved this pre hook will run so many number of times and every time the password is changes
 //so to make this code run only when password field is changes we must add if condition
 //pre hook(middleware(save))
-userSchema.pre("save", async function(next){
-  if(this.isModified("password")){
-  //hash takes two values 1.what is need to be hashed 2.how many rounds
-  this.password= await bcrypt.hash(this.password,10)
-  next()
-  }
-})
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) {
+        return;
+    }
+      //hash takes two values 1.what is need to be hashed 2.how many rounds
+
+    this.password = await bcrypt.hash(this.password, 10);
+});
 //to check password given by user we can create methods or can use predefined methods
 //created own method
 userSchema.methods.isPasswordCorrect = async function(password){

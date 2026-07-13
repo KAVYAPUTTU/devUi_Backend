@@ -18,7 +18,7 @@ const registerUser = asyncHandler( async (req,res)=>{
     //return res
 
     //if the data is coming from form or json then we find it in req.body(here we are using postman(body-raw-json) to send the data)
-    const {fulname,email,username,password}=req.body
+    const {fullname,email,username,password}=req.body
     console.log(email);
 
     //validation can be done using  if else on all parameters
@@ -28,7 +28,7 @@ const registerUser = asyncHandler( async (req,res)=>{
     //or
     if (
         [fullname,email,username,password].some((field)=>
-        field?.trime()==="")
+        field?.trim()==="")
     ) {
         throw new ApiError(400,"all fields are required")
     }
@@ -38,7 +38,7 @@ const registerUser = asyncHandler( async (req,res)=>{
     //we have a method know as findone on User model
     //through $ we can use different methods like and xor or
     //here the logic is we are finfing the user through email or username
-    const existedUser=User.findOne({
+    const existedUser= await User.findOne({
         $or:[{email},{username}]
     })
     if (existedUser) {
@@ -52,7 +52,11 @@ const registerUser = asyncHandler( async (req,res)=>{
     //multer give access of files this is the reason the middleware multer is added
     //multer already took the path when  clicked submit and stored in its server beacasue we told it to do so in multer file
     const avatarLocalPath = req.files?.avatar[0]?.path //we will take the first property of the object which gives a path from multer.
-    const coverimagelocalpath = req.files?.coverImage[0]?.path
+    // const coverimagelocalpath = req.files?.coverImage[0]?.path
+    let coverimagelocalpath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length >0) {
+        coverimagelocalpath=req.files.coverImage[0].path
+    }
 
     if (!avatarLocalPath) {
         throw new ApiError(400,"Avatar file is required")

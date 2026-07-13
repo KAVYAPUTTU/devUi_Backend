@@ -7,7 +7,7 @@ import {app} from "./app.js"
 
 // const app=express();
 dotenv.config({
-    path: './env'
+    path: './.env'
 })
 
 //connectDB is a async function so on completion we will get a promise so apply .then and .catch on the function
