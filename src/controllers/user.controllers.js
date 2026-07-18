@@ -293,7 +293,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 const getCurrentUser = asyncHandler(async (req, res) => {
     return res
         .status(200)
-        .json(200, req.user, "current user fetched succefully")
+        .json(new ApiResponse(200, req.user, "current user fetched succefully"))
 })
 
 const updateAccontDetails = asyncHandler(async (req, res) => {
@@ -368,14 +368,98 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
             new ApiResponse(200, user, "Cover image updated succesffully")
         )
 })
-export { 
+
+const getChannelProfile = asyncHandler(async (req,res) => {
+    //we get url so get username from url
+    const {username} = req.params;
+    if (!username?.trim) {
+        throw new ApiError(400,"username not found")
+    }
+
+    //we need to find document from user using username
+    const channel = await User.aggregate([
+        {
+            //how to match
+            $match:{
+                username:username?.toLowerCase()
+            }
+        },
+        {
+            $lookup:{
+                //finding subscribers
+                //from subscription model keep the starting letter lowercase
+                from:"subscription",
+                localField:"_id",
+                foreignField:"channel",
+                as:"subscribers",
+            }
+        },
+        {
+            $lookup:{
+                //finding the channels we subscribed
+                from:"subscription",
+                localField:"_id",
+                foreignField:"subscriber",
+                as:"subscribedTo",
+            }
+        },
+        //need to add the fields got from lookup into the user details document
+        {
+          $addFields:{
+             subscribersCount:{
+                $size:"subscribers"
+             },
+            channelsSubscribedToCount:{
+                $size:"subscribedTo"
+            },
+            isSubscribed:{
+                //this field tells if the user is subscribed to that channel or not
+                //if the user is present in the subscribers document from above then he is subscribed
+                $cond:{
+                    //if user is loggedin then req will have the access of user
+                    if:{$in:[req.user?._id , "$subscribers.subscriber"]},
+                    then:true,
+                    else:false
+                }
+            }
+          }
+        },
+        {
+            //only selected things are projected
+            $project:{
+                fullname:1,
+                username:1,
+                subscribersCount:1,
+                channelsSubscribedToCount:1,
+                isSubscribed:1,
+                avatar:1,
+                coverImage:1,
+                email:1
+            }
+        }
+
+    ])
+    if (!channel?.length) {
+        throw new ApiError(404,"channel not found or exists")
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,channel[0],"User chnannel fetched successfully")
+    )
+})
+
+export {
     registerUser,
-     loginUser,
-      logoutUser,
-       refreshAccessToken,
-        changeCurrentPassword,
-         getCurrentUser,
-          updateAccontDetails,
-           updateUserAvatar,
-            updateUserAvatar,
-             updateUserCoverImage }
+    loginUser,
+    logoutUser,
+    refreshAccessToken,
+    changeCurrentPassword,
+    getCurrentUser,
+    updateAccontDetails,
+    updateUserAvatar,
+    updateUserAvatar,
+    updateUserCoverImage,
+    getChannelProfile
+}
